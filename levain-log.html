@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>르방 발효 기록</title>
+<link rel="icon" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest-log.json">
+<meta name="theme-color" content="#8A5A34">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FFFFFF;
+    --olive: #171717;
+    --olive-dark: #111111;
+    --crust: #6B6B6B;
+    --crust-dark: #333333;
+    --ink: #1A1A1A;
+    --accent: #8A5A34;
+    --paper: #FFFFFF;
+    --line: rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Public Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px 80px; }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 14px 20px;
+  }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--crust-dark);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: 'Public Sans', sans-serif;
+  }
+  .back-btn:hover { color: var(--olive-dark); }
+
+  .hero {
+    padding: 28px 20px 8px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 1.2;
+    color: var(--olive-dark);
+    margin-bottom: 10px;
+  }
+  .desc { font-size: 14.5px; line-height: 1.55; color: #555555; }
+
+  /* Current status card */
+  .status-card {
+    margin: 22px 0 8px;
+    background: var(--olive-dark);
+    color: #FFFFFF;
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .status-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+  .status-value { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 600; }
+  .status-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+  .status-icon { font-size: 30px; opacity: 0.85; }
+  .status-card.empty { background: #F5F5F5; color: var(--crust-dark); }
+  .status-card.empty .status-label { color: #999999; }
+  .status-card.empty .status-sub { color: #999999; }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--olive-dark);
+    margin: 34px 0 4px;
+  }
+  .section-sub { font-size: 12.5px; color: #777777; margin-bottom: 14px; }
+
+  /* Peak summary table */
+  .peak-table-wrap {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .peak-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .peak-table th {
+    text-align: left;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #999999;
+    background: #FAFAFA;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .peak-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    vertical-align: top;
+  }
+  .peak-table tr:last-child td { border-bottom: none; }
+  .peak-table .peak-time { font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .peak-table .peak-pending { color: #aaaaaa; font-style: italic; }
+  .peak-table .peak-missed { color: #b04848; font-style: italic; }
+  .peak-table-empty {
+    text-align: center;
+    color: #999999;
+    font-size: 13px;
+    padding: 26px 0;
+  }
+
+  /* Form */
+  .log-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .log-label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--olive-dark);
+  }
+  .log-optional { font-weight: 400; color: #999999; font-size: 12px; }
+  .log-label input[type="datetime-local"],
+  .log-label input[type="text"],
+  .log-label textarea {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 400;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #FAFAFA;
+    resize: vertical;
+  }
+  .log-label input:focus,
+  .log-label textarea:focus {
+    outline: none;
+    border-color: var(--olive);
+  }
+  .log-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--crust-dark);
+    cursor: pointer;
+  }
+  .log-checkbox input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .log-submit {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    background: var(--olive);
+    color: var(--paper);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+  }
+  .log-submit:hover { background: #000000; }
+
+  /* Timeline */
+  .log-list { display: flex; flex-direction: column; gap: 10px; }
+  .log-empty {
+    text-align: center;
+    color: #999999;
+    font-size: 13.5px;
+    padding: 40px 0;
+  }
+  .day-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 22px 0 4px;
+    color: #999999;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .day-divider::before, .day-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+  .log-entry {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .log-entry.is-feeding { border-color: var(--accent); border-width: 1.5px; }
+  .log-entry-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .log-entry-time { font-weight: 700; font-size: 14.5px; color: var(--olive-dark); }
+  .log-entry-elapsed {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(0,0,0,0.05);
+    padding: 2px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .log-entry-state { font-size: 14px; line-height: 1.55; color: #333333; margin-bottom: 4px; white-space: pre-wrap; }
+  .log-entry-action { font-size: 13px; color: var(--crust-dark); }
+  .log-entry-delete:hover { color: var(--crust-dark); }
+  .log-feeding-tag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 1px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .log-peak-tag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--olive-dark);
+    border: 1px solid var(--olive-dark);
+    padding: 1px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .footer-row {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+  }
+  .clear-btn {
+    font-size: 12px;
+    color: #bbbbbb;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Public Sans', sans-serif;
+  }
+  .clear-btn:hover { color: var(--crust-dark); }
+
+  .site-footer {
+    text-align: center;
+    padding: 40px 0 10px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: #aaaaaa;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="back-btn" onclick="history.back()">← 뒤로</button>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Levain Log</div>
+  <h1>르방 발효 기록</h1>
+  <p class="desc">시각만 입력하면 가장 최근 급식 기준점부터 경과 시간이 자동으로 계산돼요.</p>
+</div>
+
+<div class="wrap">
+  <div class="status-card empty" id="status-card">
+    <div>
+      <div class="status-label">마지막 급식으로부터</div>
+      <div class="status-value" id="status-value">기록 없음</div>
+      <div class="status-sub" id="status-sub">첫 기록을 추가해보세요</div>
+    </div>
+    <div class="status-icon">🫙</div>
+  </div>
+
+  <div class="section-title">피크 타임 요약</div>
+  <div class="section-sub">급식 시점마다 피크(가장 잘 부푼 시점)까지 걸린 시간</div>
+  <div class="peak-table-wrap" id="peak-table-wrap"></div>
+
+  <div class="section-title">새 기록 추가</div>
+  <div class="log-form">
+    <label class="log-label">시각
+      <input type="datetime-local" id="log-datetime">
+    </label>
+    <label class="log-label">상태
+      <textarea id="log-state" rows="2" placeholder="예: 새콤한 향, 기포 활발, 2배 부풂"></textarea>
+    </label>
+    <label class="log-label">액션 <span class="log-optional">(선택)</span>
+      <input type="text" id="log-action" placeholder="예: 1차 급식 (1:2:2 비율)">
+    </label>
+    <label class="log-checkbox">
+      <input type="checkbox" id="log-is-feeding">
+      이 시점을 급식 기준점으로 설정 (이후 경과시간 리셋)
+    </label>
+    <label class="log-checkbox">
+      <input type="checkbox" id="log-is-peak">
+      지금이 피크예요 (가장 잘 부푼 시점)
+    </label>
+    <button class="log-submit" id="log-submit">기록 추가</button>
+  </div>
+
+  <div class="section-title">타임라인</div>
+  <div class="section-sub">Day는 자정 기준, 경과 시간은 가장 최근 급식 기준점부터 계산됩니다</div>
+  <div class="log-list" id="log-list"></div>
+
+  <div class="footer-row">
+    <button class="clear-btn" id="clear-btn">전체 기록 삭제</button>
+  </div>
+
+  <div class="site-footer">@zeta_function__</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'levain-log-entries';
+
+// 사용자가 이전에 수동으로 기록해둔 표 데이터 — localStorage가 비어있을 때만 1회 채워짐
+const SEED_ENTRIES = [
+  { id: 'seed-1', ts: '2026-07-07T15:40:00', state: '르방 최초 제작 (28~29도)', action: '', isFeeding: false },
+  { id: 'seed-2', ts: '2026-07-08T11:20:00', state: '새콤한 향, 습기참, 기포 없음, 옆면에 반죽 자국', action: '1차 급식 (실수로 1:2:2 비율)', isFeeding: true },
+  { id: 'seed-3', ts: '2026-07-08T13:00:00', state: '기포 올라오기 시작', action: '관찰 지속', isFeeding: false },
+  { id: 'seed-4', ts: '2026-07-08T19:44:00', state: '2배 부풂 (사진 확인), 기포 활발', action: '관찰 지속', isFeeding: false, isPeak: true },
+  { id: 'seed-5', ts: '2026-07-09T01:18:00', state: '아주 약간 꺼지기 시작 (피크 지남)', action: '2차 급식 (50g 남기고 50:50, 150g으로 유지)', isFeeding: true },
+  { id: 'seed-6', ts: '2026-07-09T07:50:00', state: '5분의1 정도만 부풂, 밤새 최저 23도까지 저온 영향 추정', action: '관찰 지속 (온도 회복 대기)', isFeeding: false },
+  { id: 'seed-7', ts: '2026-07-09T12:30:00', state: '(저온 영향으로 늘어진 상태에서)', action: '3차 급식 (50:50:50)', isFeeding: true }
+];
+
+function seedIfEmpty() {
+  const existing = loadEntries();
+  if (existing.length === 0) {
+    saveEntries(SEED_ENTRIES);
+  }
+}
+
+// 실수로 지워진 "Day2 오후 7:44 (2배 부풂)" 기록 1회 복구
+function repairMissingEntry() {
+  const existing = loadEntries();
+  const already = existing.some(e => e.id === 'seed-4');
+  if (!already) {
+    const restored = SEED_ENTRIES.find(e => e.id === 'seed-4');
+    if (restored) {
+      existing.push(restored);
+      saveEntries(existing);
+    }
+  }
+}
+
+// 예전 데이터에 최초 제작(seed-1)이 실수로 isFeeding:true 로 저장된 경우 자동 복구
+function repairFirstEntryFeedingFlag() {
+  const entries = loadEntries();
+  const first = entries.find(e => e.id === 'seed-1');
+  if (first && first.isFeeding) {
+    first.isFeeding = false;
+    saveEntries(entries);
+  }
+}
+function loadEntries() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function saveEntries(entries) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
+
+function dateOnly(d) {
+  const x = new Date(d);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function fmtTime(d) {
+  const dt = new Date(d);
+  let h = dt.getHours();
+  const ampm = h < 12 ? '오전' : '오후';
+  let h12 = h % 12; if (h12 === 0) h12 = 12;
+  const m = String(dt.getMinutes()).padStart(2, '0');
+  return `${ampm} ${h12}:${m}`;
+}
+function fmtElapsed(ms) {
+  if (ms == null || ms < 0) return '-';
+  const totalMin = Math.floor(ms / 60000);
+  const d = Math.floor(totalMin / 1440);
+  const h = Math.floor((totalMin % 1440) / 60);
+  const m = totalMin % 60;
+  if (d === 0 && h === 0 && m === 0) return '0h';
+  let out = '';
+  if (d > 0) out += `${d}d `;
+  if (h > 0 || d > 0) out += `${h}h`;
+  if (m > 0) out += `${m}m`;
+  return out.trim();
+}
+
+function getEntriesSorted() {
+  return loadEntries().slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+}
+
+function computeElapsedFor(entries, index) {
+  // Elapsed time is always measured from the nearest EARLIER feeding checkpoint,
+  // even for the row that itself sets a new feeding checkpoint (that checkpoint
+  // only becomes the reference for rows AFTER it).
+  for (let i = index - 1; i >= 0; i--) {
+    if (entries[i].isFeeding) {
+      return new Date(entries[index].ts) - new Date(entries[i].ts);
+    }
+  }
+  // No earlier feeding checkpoint exists yet — treat the very first entry
+  // overall as the implicit origin point.
+  if (index === 0) return 0;
+  return new Date(entries[index].ts) - new Date(entries[0].ts);
+}
+
+function renderStatus(entries) {
+  const card = document.getElementById('status-card');
+  const val = document.getElementById('status-value');
+  const sub = document.getElementById('status-sub');
+
+  let lastFeeding = null;
+  for (let i = entries.length - 1; i >= 0; i--) {
+    if (entries[i].isFeeding) { lastFeeding = entries[i]; break; }
+  }
+
+  if (!lastFeeding) {
+    card.classList.add('empty');
+    val.textContent = '기록 없음';
+    sub.textContent = '첫 기록을 급식 기준점으로 추가해보세요';
+    return;
+  }
+  card.classList.remove('empty');
+  const diff = Date.now() - new Date(lastFeeding.ts).getTime();
+  val.textContent = fmtElapsed(diff) + ' 경과';
+  sub.textContent = `${fmtTime(lastFeeding.ts)} 급식 기준`;
+}
+
+function renderList() {
+  const entries = getEntriesSorted();
+  const listEl = document.getElementById('log-list');
+
+  renderStatus(entries);
+  renderPeakTable(entries);
+
+  if (entries.length === 0) {
+    listEl.innerHTML = '<div class="log-empty">아직 기록이 없어요. 위에서 첫 기록을 추가해보세요.</div>';
+    return;
+  }
+
+  const first = entries[0];
+  let html = '';
+  let lastDay = null;
+
+  entries.forEach((entry, i) => {
+    const dayNum = Math.round((dateOnly(entry.ts) - dateOnly(first.ts)) / 86400000) + 1;
+    if (dayNum !== lastDay) {
+      html += `<div class="day-divider">Day ${dayNum}</div>`;
+      lastDay = dayNum;
+    }
+    const elapsedMs = computeElapsedFor(entries, i);
+    const elapsedText = fmtElapsed(elapsedMs);
+    const feedingClass = entry.isFeeding ? ' is-feeding' : '';
+    const feedingTag = entry.isFeeding ? '<span class="log-feeding-tag">급식</span>' : '';
+    const peakTag = entry.isPeak ? '<span class="log-peak-tag">피크</span>' : '';
+    const actionHtml = entry.action ? `<div class="log-entry-action">${escapeHtml(entry.action)}</div>` : '';
+
+    html += `
+      <div class="log-entry${feedingClass}">
+        <div class="log-entry-top">
+          <div class="log-entry-time">${fmtTime(entry.ts)}${feedingTag}${peakTag}</div>
+          <div class="log-entry-elapsed">${elapsedText}</div>
+        </div>
+        <div class="log-entry-state">${escapeHtml(entry.state)}</div>
+        ${actionHtml}
+      </div>`;
+  });
+
+  listEl.innerHTML = html;
+}
+
+function renderPeakTable(entries) {
+  const wrap = document.getElementById('peak-table-wrap');
+  const feedings = entries.filter(e => e.isFeeding);
+
+  if (feedings.length === 0) {
+    wrap.innerHTML = '<div class="peak-table-empty">아직 급식 기록이 없어요</div>';
+    return;
+  }
+
+  const first = entries[0];
+  let rows = '';
+
+  feedings.forEach((feed, idx) => {
+    const feedIndex = entries.indexOf(feed);
+    const nextFeed = feedings[idx + 1];
+    const boundary = nextFeed ? entries.indexOf(nextFeed) : entries.length;
+
+    let peakEntry = null;
+    for (let i = feedIndex; i < boundary; i++) {
+      if (entries[i].isPeak) { peakEntry = entries[i]; break; }
+    }
+
+    const dayNum = Math.round((dateOnly(feed.ts) - dateOnly(first.ts)) / 86400000) + 1;
+    const feedLabel = `${idx + 1}차 · Day ${dayNum}, ${fmtTime(feed.ts)}`;
+
+    let peakCell, noteCell;
+    if (peakEntry) {
+      const ms = new Date(peakEntry.ts) - new Date(feed.ts);
+      peakCell = `<span class="peak-time">${fmtElapsed(ms)}</span>`;
+      noteCell = escapeHtml(peakEntry.state);
+    } else if (nextFeed) {
+      peakCell = `<span class="peak-missed">피크 없음</span>`;
+      noteCell = '-';
+    } else {
+      peakCell = `<span class="peak-pending">기록 중</span>`;
+      noteCell = '-';
+    }
+
+    rows += `<tr><td>${feedLabel}</td><td>${peakCell}</td><td>${noteCell}</td></tr>`;
+  });
+
+  wrap.innerHTML = `
+    <table class="peak-table">
+      <thead><tr><th>급식 시점</th><th>피크까지</th><th>메모</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function deleteEntry(id) {
+  const entries = loadEntries().filter(e => String(e.id) !== String(id));
+  saveEntries(entries);
+  renderList();
+}
+
+document.getElementById('log-submit').addEventListener('click', () => {
+  const dtInput = document.getElementById('log-datetime');
+  const stateInput = document.getElementById('log-state');
+  const actionInput = document.getElementById('log-action');
+  const feedingInput = document.getElementById('log-is-feeding');
+  const peakInput = document.getElementById('log-is-peak');
+
+  const dtVal = dtInput.value ? new Date(dtInput.value) : new Date();
+  const stateVal = stateInput.value.trim();
+
+  if (!stateVal) {
+    stateInput.focus();
+    return;
+  }
+
+  const entries = loadEntries();
+  entries.push({
+    id: Date.now(),
+    ts: dtVal.toISOString(),
+    state: stateVal,
+    action: actionInput.value.trim(),
+    isFeeding: feedingInput.checked,
+    isPeak: peakInput.checked
+  });
+  saveEntries(entries);
+
+  dtInput.value = '';
+  stateInput.value = '';
+  actionInput.value = '';
+  feedingInput.checked = false;
+  peakInput.checked = false;
+
+  renderList();
+});
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  if (confirm('모든 기록을 삭제할까요? 되돌릴 수 없어요.')) {
+    saveEntries([]);
+    renderList();
+  }
+});
+
+// default datetime to now
+(function setDefaultDatetime() {
+  const dtInput = document.getElementById('log-datetime');
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  dtInput.value = now.toISOString().slice(0, 16);
+})();
+
+seedIfEmpty();
+repairMissingEntry();
+repairFirstEntryFeedingFlag();
+renderList();
+setInterval(() => renderStatus(getEntriesSorted()), 30000);
+</script>
+</body>
+</html>
