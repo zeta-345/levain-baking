@@ -83,17 +83,18 @@
   /* Current status card */
   .status-card {
     margin: 22px 0 8px;
-    background: var(--olive-dark);
-    color: #FFFFFF;
+    background: #F5F5F5;
+    color: #333333;
+    border: 1px solid var(--line);
     border-radius: 16px;
     padding: 20px 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .status-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
-  .status-value { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 600; }
-  .status-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+  .status-label { font-size: 12px; color: #999999; margin-bottom: 4px; }
+  .status-value { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 600; color: var(--olive-dark); }
+  .status-sub { font-size: 12px; color: #999999; margin-top: 4px; }
   .status-icon { font-size: 30px; opacity: 0.85; }
   .status-card.empty { background: #F5F5F5; color: var(--crust-dark); }
   .status-card.empty .status-label { color: #999999; }
@@ -249,6 +250,70 @@
     border-radius: 20px;
     white-space: nowrap;
   }
+  .log-entry-top-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .log-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: #999999;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .log-edit-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .log-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .log-edit-form input[type="datetime-local"],
+  .log-edit-form input[type="text"],
+  .log-edit-form textarea {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: #FAFAFA;
+    width: 100%;
+    resize: vertical;
+  }
+  .log-edit-form input:focus,
+  .log-edit-form textarea:focus { outline: none; border-color: var(--olive); }
+  .log-edit-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--crust-dark);
+    cursor: pointer;
+  }
+  .log-edit-checkbox input { width: 14px; height: 14px; accent-color: var(--accent); }
+  .log-edit-actions { display: flex; gap: 8px; margin-top: 2px; }
+  .log-edit-save, .log-edit-cancel {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    border: none;
+  }
+  .log-edit-save { background: var(--olive); color: var(--paper); }
+  .log-edit-save:hover { background: #000000; }
+  .log-edit-cancel { background: none; color: #999999; border: 1px solid var(--line); }
+  .log-edit-cancel:hover { color: var(--crust-dark); }
   .log-entry-state { font-size: 14px; line-height: 1.55; color: #333333; margin-bottom: 4px; white-space: pre-wrap; }
   .log-entry-action { font-size: 13px; color: var(--crust-dark); }
   .log-entry-delete:hover { color: var(--crust-dark); }
@@ -482,6 +547,73 @@ function renderStatus(entries) {
   sub.textContent = `${fmtTime(lastFeeding.ts)} 급식 기준`;
 }
 
+function toDatetimeLocalValue(ts) {
+  const d = new Date(ts);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
+}
+
+let editingId = null;
+
+function startEdit(id) {
+  editingId = id;
+  renderList();
+}
+
+function cancelEdit() {
+  editingId = null;
+  renderList();
+}
+
+function saveEdit(id) {
+  const dtInput = document.getElementById('edit-datetime-' + id);
+  const stateInput = document.getElementById('edit-state-' + id);
+  const actionInput = document.getElementById('edit-action-' + id);
+  const feedingInput = document.getElementById('edit-is-feeding-' + id);
+  const peakInput = document.getElementById('edit-is-peak-' + id);
+
+  const stateVal = stateInput.value.trim();
+  if (!stateVal) {
+    stateInput.focus();
+    return;
+  }
+
+  const entries = loadEntries();
+  const target = entries.find(e => String(e.id) === String(id));
+  if (!target) return;
+
+  target.ts = new Date(dtInput.value).toISOString();
+  target.state = stateVal;
+  target.action = actionInput.value.trim();
+  target.isFeeding = feedingInput.checked;
+  target.isPeak = peakInput.checked;
+
+  saveEntries(entries);
+  editingId = null;
+  renderList();
+}
+
+function renderEditForm(entry) {
+  return `
+    <div class="log-edit-form">
+      <input type="datetime-local" id="edit-datetime-${entry.id}" value="${toDatetimeLocalValue(entry.ts)}">
+      <textarea id="edit-state-${entry.id}" rows="2">${escapeHtml(entry.state)}</textarea>
+      <input type="text" id="edit-action-${entry.id}" value="${escapeHtml(entry.action || '')}" placeholder="액션 (선택)">
+      <label class="log-edit-checkbox">
+        <input type="checkbox" id="edit-is-feeding-${entry.id}" ${entry.isFeeding ? 'checked' : ''}>
+        급식 기준점
+      </label>
+      <label class="log-edit-checkbox">
+        <input type="checkbox" id="edit-is-peak-${entry.id}" ${entry.isPeak ? 'checked' : ''}>
+        피크
+      </label>
+      <div class="log-edit-actions">
+        <button class="log-edit-save" onclick="saveEdit('${entry.id}')">저장</button>
+        <button class="log-edit-cancel" onclick="cancelEdit()">취소</button>
+      </div>
+    </div>`;
+}
+
 function renderList() {
   const entries = getEntriesSorted();
   const listEl = document.getElementById('log-list');
@@ -511,11 +643,26 @@ function renderList() {
     const peakTag = entry.isPeak ? '<span class="log-peak-tag">피크</span>' : '';
     const actionHtml = entry.action ? `<div class="log-entry-action">${escapeHtml(entry.action)}</div>` : '';
 
+    if (String(entry.id) === String(editingId)) {
+      html += `
+        <div class="log-entry${feedingClass}">
+          <div class="log-entry-top">
+            <div class="log-entry-time">${fmtTime(entry.ts)}${feedingTag}${peakTag}</div>
+            <div class="log-entry-elapsed">${elapsedText}</div>
+          </div>
+          ${renderEditForm(entry)}
+        </div>`;
+      return;
+    }
+
     html += `
       <div class="log-entry${feedingClass}">
         <div class="log-entry-top">
           <div class="log-entry-time">${fmtTime(entry.ts)}${feedingTag}${peakTag}</div>
-          <div class="log-entry-elapsed">${elapsedText}</div>
+          <div class="log-entry-top-right">
+            <div class="log-entry-elapsed">${elapsedText}</div>
+            <button class="log-edit-btn" onclick="startEdit('${entry.id}')" aria-label="수정">✎</button>
+          </div>
         </div>
         <div class="log-entry-state">${escapeHtml(entry.state)}</div>
         ${actionHtml}
