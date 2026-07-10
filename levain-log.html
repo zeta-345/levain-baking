@@ -427,7 +427,10 @@
 <script>
 const STORAGE_KEY = 'levain-log-entries';
 
-// 사용자가 이전에 수동으로 기록해둔 표 데이터 — localStorage가 비어있을 때만 1회 채워짐
+// 최초 제작 당시 수기로 남겨둔 기록 — 앱을 통틀어 딱 1번만 채워짐.
+// 채워진 뒤에는 SEEDED_KEY 플래그가 영구히 남아서, 전체 삭제 후 새로고침해도
+// 다시는 자동으로 채워지지 않음 (완전히 빈 상태로 남음).
+const SEEDED_KEY = 'levain-log-seeded';
 const SEED_ENTRIES = [
   { id: 'seed-1', ts: '2026-07-07T15:40:00', state: '르방 최초 제작 (28~29도)', action: '', isFeeding: false },
   { id: 'seed-2', ts: '2026-07-08T11:20:00', state: '새콤한 향, 습기참, 기포 없음, 옆면에 반죽 자국', action: '1차 급식 (실수로 1:2:2 비율)', isFeeding: true },
@@ -438,35 +441,15 @@ const SEED_ENTRIES = [
   { id: 'seed-7', ts: '2026-07-09T12:30:00', state: '(저온 영향으로 늘어진 상태에서)', action: '3차 급식 (50:50:50)', isFeeding: true }
 ];
 
-function seedIfEmpty() {
+function seedOnce() {
+  if (localStorage.getItem(SEEDED_KEY)) return; // 이미 한 번 채워졌으면 절대 다시 채우지 않음
   const existing = loadEntries();
   if (existing.length === 0) {
     saveEntries(SEED_ENTRIES);
   }
+  localStorage.setItem(SEEDED_KEY, '1');
 }
 
-// 실수로 지워진 "Day2 오후 7:44 (2배 부풂)" 기록 1회 복구
-function repairMissingEntry() {
-  const existing = loadEntries();
-  const already = existing.some(e => e.id === 'seed-4');
-  if (!already) {
-    const restored = SEED_ENTRIES.find(e => e.id === 'seed-4');
-    if (restored) {
-      existing.push(restored);
-      saveEntries(existing);
-    }
-  }
-}
-
-// 예전 데이터에 최초 제작(seed-1)이 실수로 isFeeding:true 로 저장된 경우 자동 복구
-function repairFirstEntryFeedingFlag() {
-  const entries = loadEntries();
-  const first = entries.find(e => e.id === 'seed-1');
-  if (first && first.isFeeding) {
-    first.isFeeding = false;
-    saveEntries(entries);
-  }
-}
 function loadEntries() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -782,9 +765,7 @@ document.getElementById('clear-btn').addEventListener('click', () => {
   dtInput.value = now.toISOString().slice(0, 16);
 })();
 
-seedIfEmpty();
-repairMissingEntry();
-repairFirstEntryFeedingFlag();
+seedOnce();
 renderList();
 setInterval(() => renderStatus(getEntriesSorted()), 30000);
 </script>
