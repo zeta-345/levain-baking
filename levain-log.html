@@ -343,7 +343,30 @@
   .footer-row {
     margin-top: 30px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .backup-row {
+    display: flex;
+    gap: 10px;
+  }
+  .backup-btn {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--crust);
+    background: transparent;
+    color: var(--crust-dark);
+    cursor: pointer;
+  }
+  .backup-btn:hover { background: rgba(0,0,0,0.04); }
+  .backup-hint {
+    font-size: 11.5px;
+    color: #aaaaaa;
+    text-align: center;
   }
   .clear-btn {
     font-size: 12px;
@@ -418,6 +441,12 @@
   <div class="log-list" id="log-list"></div>
 
   <div class="footer-row">
+    <div class="backup-row">
+      <button class="backup-btn" id="export-btn">백업 파일 내보내기</button>
+      <button class="backup-btn" id="import-btn">백업 파일 불러오기</button>
+      <input type="file" id="import-file-input" accept="application/json" style="display:none;">
+    </div>
+    <div class="backup-hint">폰을 바꾸기 전엔 꼭 내보내기로 백업해두세요</div>
     <button class="clear-btn" id="clear-btn">전체 기록 삭제</button>
   </div>
 
@@ -755,6 +784,67 @@ document.getElementById('clear-btn').addEventListener('click', () => {
     saveEntries([]);
     renderList();
   }
+});
+
+// 백업 파일 내보내기
+document.getElementById('export-btn').addEventListener('click', () => {
+  const entries = loadEntries();
+  const payload = {
+    app: 'levain-log',
+    exportedAt: new Date().toISOString(),
+    entries,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  a.href = url;
+  a.download = `levain-backup-${y}${m}${d}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// 백업 파일 불러오기
+document.getElementById('import-btn').addEventListener('click', () => {
+  document.getElementById('import-file-input').click();
+});
+
+document.getElementById('import-file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(reader.result);
+    } catch (err) {
+      alert('파일을 읽을 수 없어요. 올바른 백업 파일인지 확인해주세요.');
+      return;
+    }
+
+    const incoming = Array.isArray(parsed) ? parsed : parsed.entries;
+    if (!Array.isArray(incoming)) {
+      alert('백업 파일 형식이 올바르지 않아요.');
+      return;
+    }
+
+    const current = loadEntries();
+    const byId = new Map(current.map(x => [x.id, x]));
+    incoming.forEach(entry => byId.set(entry.id, entry)); // 같은 id는 불러온 값으로 덮어씀, 새 항목은 추가
+    const merged = Array.from(byId.values());
+
+    saveEntries(merged);
+    renderList();
+    alert(`${incoming.length}개 기록을 불러왔어요. (현재 총 ${merged.length}개)`);
+    e.target.value = '';
+  };
+  reader.readAsText(file);
 });
 
 // default datetime to now

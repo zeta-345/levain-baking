@@ -154,6 +154,49 @@
     margin: 22px 0 24px;
   }
 
+  .search-box {
+    position: relative;
+    margin: 22px 0 18px;
+  }
+  .search-box input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 14.5px;
+    padding: 13px 16px 13px 40px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  .search-box input:focus { border-color: var(--olive); }
+  .search-box .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .search-empty {
+    text-align: center;
+    padding: 30px 10px;
+    color: #999999;
+    font-size: 13.5px;
+  }
+  .search-hit-tag {
+    display: inline-block;
+    font-size: 10.5px;
+    color: var(--accent);
+    background: rgba(138,90,52,0.1);
+    padding: 2px 7px;
+    border-radius: 8px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
   .recipe-grid {
     padding: 40px 0 0;
     display: flex;
@@ -192,6 +235,18 @@
     font-size: 12.5px;
     color: #777777;
   }
+  .cat-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .cat-plain  { background: #D9B98F; }
+  .cat-sweet  { background: #F0B4BE; }
+  .cat-savory { background: #F0CA85; }
+  .cat-oil    { background: #A9C7A3; }
   .recipe-arrow {
     font-size: 18px;
     color: var(--olive);
@@ -483,6 +538,10 @@
       <div class="l-arrow">→</div>
     </a>
     <div class="hero-divider"></div>
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="recipe-search" placeholder="검색" autocomplete="off" />
+    </div>
     <div class="recipe-grid" id="recipe-grid"></div>
     <footer class="site-footer">@zeta_function__</footer>
   </div>
@@ -539,6 +598,7 @@ const RECIPES = [
   {
     id: 'shokupan',
     icon: '🍞',
+    category: 'plain',
     name: '르방 미니 식빵',
     meta: '미니 식빵틀 2개 · 기본 배합',
     desc: '르방 20% 배합의 기본 식빵 레시피. 미니 식빵틀(13.5×7.5×4cm) 2개 분량입니다.',
@@ -573,6 +633,7 @@ const RECIPES = [
   {
     id: 'saltbread',
     icon: '🥐',
+    category: 'savory',
     name: '저산미 르방 소금빵',
     meta: '4개분 · 신맛 최소화 버전',
     desc: '신맛 최소화 버전. 르방 비율을 낮추고 실온에서 짧고 따뜻하게 발효시켜 이스트빵에 가까운 담백한 맛으로 완성. 반드시 \'피크 상태\' 르방만 사용하세요.',
@@ -608,6 +669,7 @@ const RECIPES = [
   {
     id: 'focaccia',
     icon: '🫒',
+    category: 'oil',
     name: '르방 포카치아',
     meta: '팬 1개 · 고수분 75%',
     desc: '르방 20% 배합, 고수분(75%) 반죽으로 겉은 바삭하고 속은 촉촉하게. 손끝으로 꾹꾹 눌러 만드는 딤플이 이 빵의 얼굴입니다.',
@@ -824,18 +886,58 @@ setInterval(renderLevainStatusCard, 30000);
 /* =========================================================
    홈 뷰 렌더링
    ========================================================= */
+// 준비 중 카드 목록 (레시피 데이터가 없어 이름으로만 검색됨)
+const UPCOMING_RECIPES = [
+  { icon: '🥯', name: '베이글', category: 'plain' },
+  { icon: '🌾', name: '사워도우', category: 'plain' },
+  { icon: '🥖', name: '바게트', category: 'plain' },
+  { icon: '🫓', name: '치아바타', category: 'oil' },
+  { icon: '🧄', name: '크림치즈 마늘빵', category: 'savory' },
+];
+
+// 레시피 하나가 검색어와 매치되는지 확인하고, 어디서 매치됐는지(제목/재료/과정) 반환
+function matchRecipe(r, q) {
+  if (r.name.toLowerCase().includes(q)) return '제목';
+  if ((r.meta || '').toLowerCase().includes(q) || (r.desc || '').toLowerCase().includes(q)) return '제목';
+  if ((r.ingredients || []).some(i =>
+    i.name.toLowerCase().includes(q) ||
+    (i.tag || '').toLowerCase().includes(q) ||
+    String(i.base).includes(q) ||
+    `${i.base}${i.unit}`.toLowerCase().includes(q)
+  )) return '재료';
+  if ((r.steps || []).some(s => s.title.toLowerCase().includes(q) || s.text.toLowerCase().includes(q))) return '과정';
+  if ((r.toppingOptions || []).some(cat =>
+    cat.options.some(opt =>
+      opt.name.toLowerCase().includes(q) ||
+      (opt.ingredients || []).some(i =>
+        i.name.toLowerCase().includes(q) ||
+        String(i.base).includes(q) ||
+        `${i.base}${i.unit}`.toLowerCase().includes(q)
+      )
+    )
+  )) return '재료';
+  return null;
+}
+
 function renderHome() {
   renderLevainStatusCard();
 
   const grid = document.getElementById('recipe-grid');
+  const searchInput = document.getElementById('recipe-search');
+  const q = (searchInput.value || '').trim().toLowerCase();
   grid.innerHTML = '';
-  RECIPES.forEach(r => {
+
+  const filteredRecipes = q
+    ? RECIPES.map(r => ({ r, hit: matchRecipe(r, q) })).filter(x => x.hit)
+    : RECIPES.map(r => ({ r, hit: null }));
+
+  filteredRecipes.forEach(({ r, hit }) => {
     const card = document.createElement('div');
     card.className = 'recipe-card';
     card.innerHTML = `
       <div class="recipe-icon">${r.icon}</div>
       <div class="recipe-info">
-        <div class="recipe-name">${r.name}</div>
+        <div class="recipe-name"><span class="cat-dot cat-${r.category}"></span>${r.name}${hit ? `<span class="search-hit-tag">${hit} 일치</span>` : ''}</div>
         <div class="recipe-meta">${r.meta}</div>
       </div>
       <div class="recipe-arrow">→</div>
@@ -844,26 +946,30 @@ function renderHome() {
     grid.appendChild(card);
   });
 
-  // 준비 중 카드 (도전 예정 레시피 예고)
-  const upcoming = [
-    { icon: '🥯', name: '베이글' },
-    { icon: '🍞', name: '사워도우' },
-    { icon: '🥖', name: '바게트' },
-    { icon: '🫓', name: '치아바타' },
-    { icon: '🧄', name: '크림치즈 마늘빵' },
-  ];
-  upcoming.forEach(u => {
+  // 준비 중 카드는 이름으로만 검색 대상에 포함 (검색어 없을 때는 항상 표시)
+  const filteredUpcoming = q
+    ? UPCOMING_RECIPES.filter(u => u.name.toLowerCase().includes(q))
+    : UPCOMING_RECIPES;
+
+  filteredUpcoming.forEach(u => {
     const card = document.createElement('div');
     card.className = 'recipe-card disabled';
     card.innerHTML = `
       <div class="recipe-icon">${u.icon}</div>
       <div class="recipe-info">
-        <div class="recipe-name">${u.name}<span class="soon-tag">준비 중</span></div>
+        <div class="recipe-name"><span class="cat-dot cat-${u.category}"></span>${u.name}<span class="soon-tag">준비 중</span></div>
         <div class="recipe-meta">레시피 추가 예정</div>
       </div>
     `;
     grid.appendChild(card);
   });
+
+  if (q && filteredRecipes.length === 0 && filteredUpcoming.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'search-empty';
+    empty.textContent = `"${searchInput.value.trim()}"에 대한 검색 결과가 없어요.`;
+    grid.appendChild(empty);
+  }
 }
 
 /* =========================================================
@@ -1124,6 +1230,7 @@ function updateServings() {
   renderToppingSection();
 }
 
+document.getElementById('recipe-search').addEventListener('input', renderHome);
 renderHome();
 </script>
 
