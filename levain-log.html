@@ -442,6 +442,10 @@
 
   <div class="footer-row">
     <div class="backup-row">
+      <button class="backup-btn" id="notify-btn">🔔 급식 알림 켜기</button>
+    </div>
+    <div class="backup-hint" id="notify-status">오전/오후 8:30에 알림을 보내드려요 (앱을 열어두거나 홈 화면에 추가해두면 더 잘 떠요)</div>
+    <div class="backup-row">
       <button class="backup-btn" id="export-btn">백업 파일 내보내기</button>
       <button class="backup-btn" id="import-btn">백업 파일 불러오기</button>
       <input type="file" id="import-file-input" accept="application/json" style="display:none;">
@@ -854,6 +858,68 @@ document.getElementById('import-file-input').addEventListener('change', (e) => {
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   dtInput.value = now.toISOString().slice(0, 16);
 })();
+
+// ---- 급식 알림 (오전 8:30 / 오후 8:30) ----
+// 주의: 이 앱은 서버가 없는 정적 페이지라, 이 기능은 브라우저 탭이 열려있거나
+// (홈 화면에 추가해서) 백그라운드에서 살아있을 때만 동작함.
+// 앱을 완전히 종료한 상태에서는 알림이 뜨지 않음 — 확실한 알림이 필요하면
+// 폰 기본 알람 앱도 같이 써두는 걸 추천.
+const NOTIFY_TIMES = ['08:30', '20:30'];
+const NOTIFY_LAST_KEY = 'levain-log-last-notified';
+
+function updateNotifyUI() {
+  const btn = document.getElementById('notify-btn');
+  const status = document.getElementById('notify-status');
+  if (!('Notification' in window)) {
+    btn.disabled = true;
+    status.textContent = '이 브라우저는 알림 기능을 지원하지 않아요';
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    btn.textContent = '🔔 급식 알림 켜짐';
+    status.textContent = '오전/오후 8:30에 알림을 보내드려요 (앱을 열어두거나 홈 화면에 추가해두면 더 잘 떠요)';
+  } else if (Notification.permission === 'denied') {
+    btn.textContent = '🔕 알림이 차단됨';
+    status.textContent = '브라우저 설정에서 이 사이트의 알림 권한을 허용해주세요';
+  } else {
+    btn.textContent = '🔔 급식 알림 켜기';
+    status.textContent = '눌러서 알림을 허용하면 오전/오후 8:30에 알려드려요';
+  }
+}
+
+document.getElementById('notify-btn').addEventListener('click', () => {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission().then(updateNotifyUI);
+  } else if (Notification.permission === 'granted') {
+    new Notification('알림이 켜져있어요 🫙', { body: '오전/오후 8:30에 급식 알림을 보내드려요' });
+  } else {
+    alert('브라우저 사이트 설정에서 알림 권한을 허용한 뒤 다시 시도해주세요.');
+  }
+});
+
+function checkFeedingReminder() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const current = `${hh}:${mm}`;
+  if (!NOTIFY_TIMES.includes(current)) return;
+
+  const slotKey = now.toISOString().slice(0, 10) + '_' + current;
+  if (localStorage.getItem(NOTIFY_LAST_KEY) === slotKey) return; // 같은 슬롯 중복 방지
+
+  const ampmLabel = current === '08:30' ? '오전' : '오후';
+  new Notification('르방 밥 줄 시간이에요 🫙', {
+    body: `${ampmLabel} 8:30 급식 시간이에요. 앱을 열어서 기록해주세요.`,
+    icon: 'apple-touch-icon.png'
+  });
+  localStorage.setItem(NOTIFY_LAST_KEY, slotKey);
+}
+
+updateNotifyUI();
+setInterval(checkFeedingReminder, 20000); // 20초마다 시간 체크
+// ---- 급식 알림 끝 ----
 
 seedOnce();
 renderList();
