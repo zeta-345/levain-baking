@@ -961,7 +961,7 @@ function renderHome() {
   renderLevainStatusCard();
 
   document.getElementById('stat-completed').textContent = RECIPES.length;
-  document.getElementById('stat-upcoming').textContent = UPCOMING_RECIPES.length + '+';
+  document.getElementById('stat-upcoming').textContent = UPCOMING_RECIPES.length;
 
   const grid = document.getElementById('recipe-grid');
   const searchInput = document.getElementById('recipe-search');
@@ -1212,26 +1212,14 @@ function renderSteps() {
   });
 }
 
-let audioCtx = null;
+let alarmAudio = null;
 function playBeep() {
   try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const now = audioCtx.currentTime;
-    [0, 0.28, 0.56].forEach((offset) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.0001, now + offset);
-      gain.gain.exponentialRampToValueAtTime(0.35, now + offset + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.22);
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start(now + offset);
-      osc.stop(now + offset + 0.24);
-    });
+    if (!alarmAudio) alarmAudio = new Audio('alarm.wav');
+    alarmAudio.currentTime = 0;
+    alarmAudio.play().catch(e => console.error('알람 재생 실패', e));
   } catch (e) {
-    console.error('beep 재생 실패', e);
+    console.error('알람 재생 실패', e);
   }
 }
 
@@ -1334,9 +1322,15 @@ function toggleTimer(idx, btn) {
     timerStates[key].remaining = currentRecipe.steps[idx].timer;
   }
 
-  // 오디오는 반드시 사용자 클릭(제스처) 시점에 한 번 준비해둬야 나중에 소리가 나요
-  if (!audioCtx) {
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+  // 오디오는 반드시 사용자 클릭(제스처) 시점에 한 번 준비해둬야 나중에(타이머 종료 시) 자동 재생이 막히지 않아요
+  if (!alarmAudio) {
+    try { alarmAudio = new Audio('alarm.wav'); } catch (e) {}
+  }
+  if (alarmAudio) {
+    alarmAudio.play().then(() => {
+      alarmAudio.pause();
+      alarmAudio.currentTime = 0;
+    }).catch(() => {});
   }
 
   // 남은 초 대신 '끝나는 실제 시각'을 저장 → background에서 setInterval이 밀리거나 건너뛰어도
