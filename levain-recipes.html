@@ -1235,6 +1235,28 @@ function playBeep() {
   }
 }
 
+function openNativeTimer(seconds, message) {
+  // 안드로이드 전용: 시계 앱의 '타이머'를 지정된 길이로 미리 채워서 열어줌
+  // (ACTION_SET_TIMER는 표준 안드로이드 인텐트, 대부분의 기본 시계 앱이 지원)
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  if (!isAndroid) return;
+
+  const seconds_ = Math.max(1, Math.round(seconds));
+  const msg = encodeURIComponent(message);
+  const fallback = encodeURIComponent(window.location.href);
+
+  const intentUri =
+    `intent://#Intent;` +
+    `action=android.intent.action.SET_TIMER;` +
+    `category=android.intent.category.DEFAULT;` +
+    `i.android.intent.extra.alarm.LENGTH=${seconds_};` +
+    `S.android.intent.extra.alarm.MESSAGE=${msg};` +
+    `S.browser_fallback_url=${fallback};` +
+    `end`;
+
+  window.location.href = intentUri;
+}
+
 function toIcsDate(date) {
   return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }
@@ -1318,8 +1340,8 @@ function toggleTimer(idx, btn) {
   btn.classList.add('running');
   btn.textContent = '일시정지';
 
-  // 앱 타이머 시작과 동시에, 같은 시각에 끝나는 캘린더 알림(.ics)도 함께 다운로드
-  downloadStepReminder(idx, timerStates[key].remaining);
+  // 앱 타이머 시작과 동시에, 폰 기본 시계 앱의 '타이머'도 같은 길이로 열어줌 (안드로이드)
+  openNativeTimer(timerStates[key].remaining, `${currentRecipe.name} · ${currentRecipe.steps[idx].title}`);
 
   const tick = () => {
     const state = timerStates[key];
