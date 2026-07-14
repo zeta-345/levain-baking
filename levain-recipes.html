@@ -905,7 +905,7 @@ function renderLevainStatusCard() {
   }
 
   let lastFeeding = null;
-  entries.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
+  entries = entries.slice().sort((a, b) => new Date(a.ts) - new Date(b.ts));
   for (let i = entries.length - 1; i >= 0; i--) {
     if (entries[i].isFeeding) { lastFeeding = entries[i]; break; }
   }
