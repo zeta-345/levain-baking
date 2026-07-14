@@ -1342,6 +1342,9 @@ function toggleTimer(idx, btn) {
   // 앱 타이머 시작과 동시에, 폰 기본 시계 앱의 '타이머'도 같은 길이로 열어줌 (안드로이드)
   openNativeTimer(timerStates[key].remaining, `${currentRecipe.name} · ${currentRecipe.steps[idx].title}`);
 
+  // 캘린더 앱에도 완료 시각 기준 알림 이벤트(.ics)를 다운로드해줌
+  downloadStepReminder(idx, timerStates[key].remaining);
+
   const tick = () => {
     const state = timerStates[key];
     if (!state || !state.interval) return;
