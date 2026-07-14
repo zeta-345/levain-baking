@@ -1243,18 +1243,23 @@ function openNativeTimer(seconds, message) {
 
   const seconds_ = Math.max(1, Math.round(seconds));
   const msg = encodeURIComponent(message);
-  const fallback = encodeURIComponent(window.location.href);
 
+  // fallback URL을 일부러 넣지 않음: 지원 안 되는 기기에서 실패해도
+  // 현재 페이지가 새로고침/리셋되지 않고 그냥 아무 일도 안 일어남
   const intentUri =
     `intent://#Intent;` +
     `action=android.intent.action.SET_TIMER;` +
     `category=android.intent.category.DEFAULT;` +
     `i.android.intent.extra.alarm.LENGTH=${seconds_};` +
     `S.android.intent.extra.alarm.MESSAGE=${msg};` +
-    `S.browser_fallback_url=${fallback};` +
     `end`;
 
-  window.location.href = intentUri;
+  const a = document.createElement('a');
+  a.href = intentUri;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 500);
 }
 
 function toIcsDate(date) {
