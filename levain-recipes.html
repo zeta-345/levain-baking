@@ -912,14 +912,14 @@ const RECIPES = [
     category: 'sweet',
     name: '수플레 팬케이크',
     meta: '2인분 · 폭신하고 두꺼운 일본식',
-    desc: '계란 흰자를 머랭으로 올려 만드는 폭신하고 두꺼운 일본식 수플레 팬케이크',
+    desc: '달걀 흰자를 머랭으로 올려 만드는 폭신하고 두꺼운 일본식 수플레 팬케이크',
     baseServings: 2,
     servingsUnit: '인분',
     servingsMax: 8,
     visual: 'roll',
     image: IMG_SOUFFLE,
     ingredients: [
-      { name: '큰 계란 (흰자/노른자 분리)', base: 2, unit: '개' },
+      { name: '큰 달걀 (흰자/노른자 분리)', base: 2, unit: '개' },
       { name: '박력분', base: 30, unit: 'g' },
       { name: '우유', base: 20, unit: 'ml' },
       { name: '설탕', base: 10, unit: 'g', tag: '노른자 반죽용' },
@@ -1039,22 +1039,36 @@ const UPCOMING_RECIPES = [
   { icon: '🧄', name: '크림치즈 마늘빵', category: 'savory' },
 ];
 
+// 검색어/텍스트 동의어 정규화 (예: 계란 <-> 달걀처럼 표기가 달라도 같은 검색 결과가 나오도록)
+const SEARCH_SYNONYMS = [
+  ['계란', '달걀'],
+];
+function normalizeSearchText(text) {
+  let result = text;
+  SEARCH_SYNONYMS.forEach(([a, b]) => {
+    result = result.split(a).join(b);
+  });
+  return result;
+}
+
 // 레시피 하나가 검색어와 매치되는지 확인하고, 어디서 매치됐는지(제목/재료/과정) 반환
 function matchRecipe(r, q) {
-  if (r.name.toLowerCase().includes(q)) return '제목';
-  if ((r.meta || '').toLowerCase().includes(q) || (r.desc || '').toLowerCase().includes(q)) return '제목';
+  q = normalizeSearchText(q);
+  const norm = (s) => normalizeSearchText((s || '').toLowerCase());
+  if (norm(r.name).includes(q)) return '제목';
+  if (norm(r.meta).includes(q) || norm(r.desc).includes(q)) return '제목';
   if ((r.ingredients || []).some(i =>
-    i.name.toLowerCase().includes(q) ||
-    (i.tag || '').toLowerCase().includes(q) ||
+    norm(i.name).includes(q) ||
+    norm(i.tag).includes(q) ||
     String(i.base).includes(q) ||
     `${i.base}${i.unit}`.toLowerCase().includes(q)
   )) return '재료';
-  if ((r.steps || []).some(s => s.title.toLowerCase().includes(q) || s.text.toLowerCase().includes(q))) return '과정';
+  if ((r.steps || []).some(s => norm(s.title).includes(q) || norm(s.text).includes(q))) return '과정';
   if ((r.toppingOptions || []).some(cat =>
     cat.options.some(opt =>
-      opt.name.toLowerCase().includes(q) ||
+      norm(opt.name).includes(q) ||
       (opt.ingredients || []).some(i =>
-        i.name.toLowerCase().includes(q) ||
+        norm(i.name).includes(q) ||
         String(i.base).includes(q) ||
         `${i.base}${i.unit}`.toLowerCase().includes(q)
       )
