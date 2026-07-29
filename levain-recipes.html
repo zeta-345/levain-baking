@@ -437,15 +437,24 @@
   .topping-extra-list li:last-child { border-bottom: none; }
 
   .leavening-wrap {
-    margin: 18px 20px 0;
-    max-width: 680px;
+    max-width: 720px;
+    margin: 24px auto 0;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  .leavening-card {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px 18px;
+    background: var(--paper);
   }
   .leavening-label {
-    font-size: 13px;
+    font-size: 11.5px;
     font-weight: 600;
-    color: var(--olive);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #999999;
     margin-bottom: 10px;
-    letter-spacing: 0.02em;
   }
   .leavening-row {
     display: flex;
@@ -463,14 +472,13 @@
     border-radius: 9px;
     border: none;
     background: transparent;
-    color: #777777;
+    color: var(--olive-dark);
     cursor: pointer;
     transition: all .15s ease;
   }
   .leavening-btn.active {
-    background: var(--paper);
-    color: var(--olive-dark);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    background: var(--olive);
+    color: var(--paper);
   }
   .leavening-note {
     margin-top: 10px;
@@ -606,7 +614,7 @@
     </div>
   </div>
 
-  <div id="leavening-toggle" style="display:none;"></div>
+  <div id="leavening-toggle" class="leavening-wrap" style="display:none;"></div>
 
   <div class="wrap">
     <section class="body-section">
@@ -1218,10 +1226,12 @@ function renderLeaveningToggle() {
   }
   container.style.display = 'block';
   container.innerHTML = `
-    <div class="leavening-label">발효종 선택</div>
-    <div class="leavening-row">
-      <button class="leavening-btn${leaveningMode === 'levain' ? ' active' : ''}" data-mode="levain">르방 버전</button>
-      <button class="leavening-btn${leaveningMode === 'yeast' ? ' active' : ''}" data-mode="yeast">이스트 버전</button>
+    <div class="leavening-card">
+      <div class="leavening-label">발효종 선택</div>
+      <div class="leavening-row">
+        <button class="leavening-btn${leaveningMode === 'levain' ? ' active' : ''}" data-mode="levain">르방 버전</button>
+        <button class="leavening-btn${leaveningMode === 'yeast' ? ' active' : ''}" data-mode="yeast">이스트 버전</button>
+      </div>
     </div>
   `;
   container.querySelectorAll('.leavening-btn').forEach(btn => {
