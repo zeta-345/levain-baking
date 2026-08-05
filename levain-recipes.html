@@ -981,8 +981,8 @@ const RECIPES = [
       { name: '물', base: 130, unit: 'g' },
       { name: '소금', base: 5, unit: 'g' },
       { name: '설탕', base: 10, unit: 'g' },
-      { name: '물', base: 1500, unit: 'ml', tag: '보일링용', excludeFromDivide: true },
-      { name: '설탕', base: 20, unit: 'g', tag: '보일링 물에', excludeFromDivide: true },
+      { name: '물', base: 1500, unit: 'ml', tag: '보일링용', excludeFromDivide: true, noScale: true },
+      { name: '설탕', base: 20, unit: 'g', tag: '보일링 물에', excludeFromDivide: true, noScale: true },
     ],
     steps: [
       { title: '반죽하기', text: '볼에 <b>강력분</b>, <b>활성 르방</b>, <b>물</b>, <b>소금</b>, <b>설탕</b>을 넣고 반죽합니다. 베이글은 저수분 반죽이라 손에 많이 붙지 않고 되직해요, 표면이 매끄러워질 때까지 8~10분 정도 치댑니다.', timer: null },
@@ -1003,8 +1003,8 @@ const RECIPES = [
         { name: '인스턴트 드라이이스트', base: 3, unit: 'g' },
         { name: '소금', base: 5, unit: 'g' },
         { name: '설탕', base: 10, unit: 'g' },
-        { name: '물', base: 1500, unit: 'ml', tag: '보일링용', excludeFromDivide: true },
-        { name: '설탕', base: 20, unit: 'g', tag: '보일링 물에', excludeFromDivide: true },
+        { name: '물', base: 1500, unit: 'ml', tag: '보일링용', excludeFromDivide: true, noScale: true },
+        { name: '설탕', base: 20, unit: 'g', tag: '보일링 물에', excludeFromDivide: true, noScale: true },
       ],
       steps: [
         { title: '반죽하기', text: '볼에 <b>강력분</b>, <b>물</b>, <b>인스턴트 드라이이스트</b>, <b>소금</b>, <b>설탕</b>을 넣고 반죽합니다. 베이글은 저수분 반죽이라 손에 많이 붙지 않고 되직해요, 표면이 매끄러워질 때까지 8~10분 정도 치댑니다.', timer: null },
@@ -1597,7 +1597,7 @@ function renderIngredients() {
   const ul = document.getElementById('ingredients');
   ul.innerHTML = '';
   getActiveIngredients().forEach(ing => {
-    const scaled = ing.base * (servings / currentRecipe.baseServings);
+    const scaled = ing.noScale ? ing.base : ing.base * (servings / currentRecipe.baseServings);
     const li = document.createElement('li');
     li.innerHTML = `
       <span class="ing-name">${ing.name}${ing.tag ? `<span class="ing-tag">${ing.tag}</span>` : ''}</span>
