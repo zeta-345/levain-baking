@@ -24,6 +24,47 @@
     --line: rgba(0,0,0,0.12);
   }
   * { box-sizing: border-box; }
+
+  #splash-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: #F3E8D8;
+    transition: opacity 0.4s ease;
+  }
+  #splash-screen img {
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+  }
+  #splash-screen .splash-dots {
+    display: flex;
+    gap: 10px;
+  }
+  #splash-screen .splash-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: splashDotFade 1.2s ease-in-out infinite;
+  }
+  #splash-screen .splash-dot:nth-child(1) { animation-delay: 0s; }
+  #splash-screen .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+  #splash-screen .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes splashDotFade {
+    0%, 80%, 100% { opacity: 0.2; }
+    40% { opacity: 1; }
+  }
+  #splash-screen.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   body {
     margin: 0;
     background: var(--cream);
@@ -561,6 +602,15 @@
 </style>
 </head>
 <body>
+
+<div id="splash-screen">
+  <img src="icon-192.png" alt="르방 베이킹 레시피">
+  <div class="splash-dots">
+    <span class="splash-dot"></span>
+    <span class="splash-dot"></span>
+    <span class="splash-dot"></span>
+  </div>
+</div>
 
 <div class="topbar" id="topbar">
   <div class="back-btn" id="back-btn">← 레시피 목록</div>
@@ -1879,6 +1929,18 @@ function updateServings() {
 
 document.getElementById('recipe-search').addEventListener('input', renderHome);
 renderHome();
+</script>
+
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const splash = document.getElementById('splash-screen');
+      if (splash) {
+        splash.classList.add('hide');
+        setTimeout(() => splash.remove(), 400);
+      }
+    }, 500);
+  });
 </script>
 
 </body>
