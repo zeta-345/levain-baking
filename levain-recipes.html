@@ -42,20 +42,26 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    animation: splashIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  @keyframes splashIn {
-    0% { opacity: 0; transform: scale(0.8); }
-    100% { opacity: 1; transform: scale(1); }
   }
   #splash-screen img {
     width: 88px;
     height: 88px;
     border-radius: 20px;
+    animation: iconShrink 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes iconShrink {
+    0% { transform: scale(2.1); }
+    100% { transform: scale(1); }
   }
   #splash-screen .splash-dots {
     display: flex;
     gap: 10px;
+    opacity: 0;
+    animation: dotsReveal 0.3s ease-out 0.45s both;
+  }
+  @keyframes dotsReveal {
+    0% { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
   #splash-screen .splash-dot {
     width: 9px;
@@ -63,10 +69,10 @@
     border-radius: 50%;
     background: var(--accent);
     animation: splashDotFade 1.2s ease-in-out infinite;
+    animation-delay: 0.45s;
   }
-  #splash-screen .splash-dot:nth-child(1) { animation-delay: 0s; }
-  #splash-screen .splash-dot:nth-child(2) { animation-delay: 0.2s; }
-  #splash-screen .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+  #splash-screen .splash-dot:nth-child(2) { animation-delay: 0.65s; }
+  #splash-screen .splash-dot:nth-child(3) { animation-delay: 0.85s; }
   @keyframes splashDotFade {
     0%, 80%, 100% { opacity: 0.2; }
     40% { opacity: 1; }
