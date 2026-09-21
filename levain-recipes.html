@@ -455,12 +455,18 @@
     white-space: nowrap;
   }
 
+  .cake-variant-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
   .cake-variant-row {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 22px;
   }
   .cake-variant-btn {
     font-family: 'Public Sans', sans-serif;
@@ -737,8 +743,6 @@
 
     <div class="dimple-map" id="detail-visual"></div>
 
-    <div id="cake-variant-section"></div>
-
     <div class="servings-bar">
       <button id="minus" aria-label="줄이기">−</button>
       <div class="servings-label"><b id="servings-num">4</b><span id="servings-unit-label"></span></div>
@@ -747,6 +751,8 @@
   </div>
 
   <div id="leavening-toggle" class="leavening-wrap" style="display:none;"></div>
+
+  <div id="cake-variant-section" class="cake-variant-wrap"></div>
 
   <div class="wrap">
     <section class="body-section">
@@ -1386,7 +1392,7 @@ const RECIPES = [
     cakeVariants: [
       {
         id: 'cream-cake',
-        label: '생크림케이크',
+        label: '생크림 케이크',
         image: 'images/default-cake.jpg',
         desc: '지름 18cm(2호) x 높이 6.5cm 팬 1개 분량. 3단 시트 사이에 물기 뺀 통조림 과일을 다이스로 깔고, 겉면은 딸기로 토핑하는 기본 생크림케이크입니다.',
         ingredients: [
@@ -1424,7 +1430,7 @@ const RECIPES = [
       },
       {
         id: 'berry-mix-cake',
-        label: '베리믹스케이크',
+        label: '믹스베리 케이크',
         image: 'images/berrymix-cake.jpg',
         desc: '시트 사이에 딸기·블루베리를 섞어 다이스로 깔고, 크림은 식용색소로 연한 보라 톤을 낸 베리믹스케이크입니다.',
         ingredients: [
@@ -1465,7 +1471,7 @@ const RECIPES = [
       },
       {
         id: 'chocolate-cake',
-        label: '초코케이크',
+        label: '초콜릿 케이크',
         image: 'images/chocolate-cake.jpg',
         desc: '시트와 크림 모두 초콜릿 맛으로 채우고, 겉면은 초코가나슈로 코팅/드립한 진한 초코케이크입니다.',
         ingredients: [
@@ -1505,7 +1511,7 @@ const RECIPES = [
       },
       {
         id: 'buttercream-cake',
-        label: '버터크림케이크',
+        label: '버터크림 케이크',
         image: 'images/buttercream-cake.jpg',
         desc: '같은 시트에, 생크림 대신 버터+슈가파우더로 만든 기본 버터크림을 채우고 코팅한 버터크림케이크입니다.',
         ingredients: [
@@ -1542,7 +1548,7 @@ const RECIPES = [
       },
       {
         id: 'tiramisu-cake',
-        label: '티라미수케이크',
+        label: '티라미수 케이크',
         image: 'images/tiramisu-cake.jpg',
         desc: '커피 시럽을 적신 시트 사이에 마스카포네+생크림 크림을 채우고, 겉면에 코코아파우더를 뿌린 티라미수케이크입니다.',
         ingredients: [
