@@ -455,6 +455,32 @@
     white-space: nowrap;
   }
 
+  .cake-variant-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .cake-variant-btn {
+    font-family: 'Public Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--line);
+    background: var(--paper);
+    color: var(--olive-dark);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .cake-variant-btn:hover { border-color: var(--olive); }
+  .cake-variant-btn.active {
+    background: var(--olive);
+    border-color: var(--olive);
+    color: var(--paper);
+  }
+
   .topping-wrap {
     margin-top: 22px;
     padding-top: 20px;
@@ -710,6 +736,8 @@
     <p class="desc" id="detail-desc"></p>
 
     <div class="dimple-map" id="detail-visual"></div>
+
+    <div id="cake-variant-section"></div>
 
     <div class="servings-bar">
       <button id="minus" aria-label="줄이기">−</button>
@@ -1345,44 +1373,211 @@ const RECIPES = [
     },
   },
   {
-    id: 'cream-cake',
+    id: 'cake',
     icon: '🎂',
     category: 'sweet',
     name: '케이크',
     meta: '18cm(2호) 팬 1개 · 3단',
-    desc: '지름 18cm(2호) x 높이 6.5cm 팬 1개 분량. 두껍게 구운 시트를 3등분해 생크림으로 층을 쌓는 케이크입니다.',
+    desc: '지름 18cm(2호) x 높이 6.5cm 팬 1개 분량. 3단 시트 사이에 물기 뺀 통조림 과일을 다이스로 깔고, 겉면은 딸기로 토핑하는 기본 생크림케이크입니다.',
     baseServings: 1,
     servingsUnit: '개 (팬)',
     servingsMax: 2,
     visual: 'cake',
-    ingredients: [
-      { name: '달걀', base: 6, unit: '개' },
-      { name: '설탕', base: 180, unit: 'g', tag: '시트용' },
-      { name: '박력분', base: 180, unit: 'g' },
-      { name: '우유', base: 45, unit: 'ml', tag: '또는 연유 약간 섞어서' },
-      { name: '무염버터', base: 30, unit: 'g' },
-      { name: '생크림', base: 520, unit: 'ml', tag: '휘핑용 (3단 쌓기+코팅까지 넉넉하게)' },
-      { name: '설탕', base: 52, unit: 'g', tag: '크림용' },
-      { name: '시럽용 물', base: 60, unit: 'ml' },
-      { name: '시럽용 설탕', base: 30, unit: 'g' },
+    cakeVariants: [
+      {
+        id: 'cream-cake',
+        label: '생크림케이크',
+        image: 'images/default-cake.jpg',
+        desc: '지름 18cm(2호) x 높이 6.5cm 팬 1개 분량. 3단 시트 사이에 물기 뺀 통조림 과일을 다이스로 깔고, 겉면은 딸기로 토핑하는 기본 생크림케이크입니다.',
+        ingredients: [
+          { name: '달걀', base: 6, unit: '개' },
+          { name: '설탕', base: 180, unit: 'g', tag: '시트용' },
+          { name: '박력분', base: 180, unit: 'g' },
+          { name: '우유', base: 45, unit: 'ml' },
+          { name: '무염버터', base: 30, unit: 'g' },
+          { name: '생크림', base: 480, unit: 'ml', tag: '휘핑용' },
+          { name: '설탕', base: 48, unit: 'g', tag: '크림용' },
+          { name: '시럽용 물', base: 60, unit: 'ml' },
+          { name: '시럽용 설탕', base: 30, unit: 'g' },
+          { name: '통조림 과일', base: 150, unit: 'g', tag: '물기 제거, 작게 다이스' },
+          { name: '딸기', base: 200, unit: 'g', tag: '토핑용' },
+        ],
+        steps: [
+          { title: '오븐 예열 및 팬 준비', text: '오븐을 165도로 예열합니다 (시트가 두꺼운 만큼 온도를 조금 낮추고 시간을 늘립니다). 지름 18cm 원형팬 바닥과 옆면에 유산지를 깝니다.', timer: null },
+          { title: '버터·우유 데우기', text: '<b>무염버터</b>와 <b>우유</b>를 작은 볼에 담아 중탕이나 전자레인지로 살짝 데워 버터를 녹입니다.', timer: null },
+          { title: '달걀 거품내기', text: '<b>달걀</b>과 <b>설탕(시트용)</b>을 큰 볼에 넣고 중탕(60도 정도 물)에 올려 데우면서 거품기로 저어줍니다.', timer: 2*60+30 },
+          { title: '고속 휘핑', text: '중탕에서 내려 핸드믹서 고속으로 휘핑해 반죽이 하얗고 리본처럼 떨어질 때까지 충분히 부풀립니다.', timer: 6*60 },
+          { title: '가루 섞기', text: '<b>박력분</b>을 체 쳐서 2~3회에 나눠 넣고 주걱으로 가르듯이 섞습니다. 너무 오래 섞지 않습니다.', timer: null },
+          { title: '버터물 섞기', text: '반죽 한 주걱을 덜어 데워둔 <b>무염버터</b>, <b>우유</b>와 섞은 뒤 전체 반죽에 다시 합쳐 가볍게 섞습니다.', timer: null },
+          { title: '굽기', text: '반죽을 팬에 붓습니다. 반죽이 팬의 85~90%를 넘지 않도록 확인하고, 바닥에 살짝 쳐서 기포를 뺀 후 165도 오븐에서 굽습니다. 꺼풀이 타기 전에 호일로 덮어주면 좋습니다.', timer: 40*60 },
+          { title: '식히기', text: '구워지면 팬째 뒤집어 식힘망에서 완전히 식힌 후 팬에서 분리합니다.', timer: null },
+          { title: '시럽 만들기', text: '<b>시럽용 물</b>과 <b>시럽용 설탕</b>을 냄비에 넣고 한 번 끓여 식힙니다.', timer: null },
+          { title: '생크림 휘핑', text: '<b>생크림(휘핑용)</b>과 <b>설탕(크림용)</b>을 볼에 넣고 차가운 상태에서 단단한 뿔이 서도록 휘핑합니다.', timer: 3*60+20 },
+          { title: '시트 3등분 후 시럽 바르기', text: '식은 시트를 수평으로 균등하게 3등분하고, 각 단면에 시럽을 골고루 발라줍니다.', timer: null },
+          { title: '과일 다이스 준비', text: '<b>통조림 과일</b>은 최대한 물기를 제거한 뒤 잘게 다이스로 썰어둡니다.', timer: null },
+          { title: '3단 층 쌓기', text: '맨 아래 시트 위에 생크림을 얇게 바르고, 그 위에 과일 다이스를 고르게 깐 뒤 다시 크림을 한 겹 덮고 두 번째 시트를 올립니다. 같은 방식으로 반복해 세 번째 시트까지 쌓습니다.', timer: null },
+          { title: '겉면 코팅', text: '케이크 전체를 남은 생크림으로 깔끔하게 코팅합니다 (가장자리 코팅 후 마무리 코팅).', timer: null },
+          { title: '딸기 데코', text: '<b>딸기</b>를 씻고 물기를 완전히 제거한 뒤, 케이크 윗면에 원하는 모양으로 올려 장식합니다.', timer: null },
+          { title: '냉장 보관', text: '먹기 전 냉장고에서 1시간 이상 굳혀주면 층이 안정되고 더 깔끔하게 썰립니다.', timer: 3600 },
+        ],
+        note: '우유 일부를 연유로 바꾸면 은은한 단맛과 향이 더해짐. 과일 다이스는 통조림 대신 냉동 과일을 해동 후 물기를 짜서 써도 됨.',
+      },
+      {
+        id: 'berry-mix-cake',
+        label: '베리믹스케이크',
+        image: 'images/berrymix-cake.jpg',
+        desc: '시트 사이에 딸기·블루베리를 섞어 다이스로 깔고, 크림은 식용색소로 핑크-보라 톤을 낸 베리믹스케이크입니다.',
+        ingredients: [
+          { name: '달걀', base: 6, unit: '개' },
+          { name: '설탕', base: 180, unit: 'g', tag: '시트용' },
+          { name: '박력분', base: 180, unit: 'g' },
+          { name: '우유', base: 45, unit: 'ml' },
+          { name: '무염버터', base: 30, unit: 'g' },
+          { name: '생크림', base: 480, unit: 'ml', tag: '휘핑용' },
+          { name: '설탕', base: 48, unit: 'g', tag: '크림용' },
+          { name: '시럽용 물', base: 60, unit: 'ml' },
+          { name: '시럽용 설탕', base: 30, unit: 'g' },
+          { name: '딸기', base: 75, unit: 'g', tag: '다이스용' },
+          { name: '블루베리', base: 75, unit: 'g', tag: '다이스용' },
+          { name: '핑크 식용색소', base: 2 },
+          { name: '퍼플(보라) 식용색소', base: 2 },
+          { name: '딸기·블루베리', base: 100, unit: 'g', tag: '토핑용' },
+        ],
+        steps: [
+          { title: '오븐 예열 및 팬 준비', text: '오븐을 165도로 예열합니다. 지름 18cm 원형팬 바닥과 옆면에 유산지를 깝니다.', timer: null },
+          { title: '버터·우유 데우기', text: '<b>무염버터</b>와 <b>우유</b>를 작은 볼에 담아 중탕이나 전자레인지로 살짝 데워 버터를 녹입니다.', timer: null },
+          { title: '달걀 거품내기', text: '<b>달걀</b>과 <b>설탕(시트용)</b>을 큰 볼에 넣고 중탕(60도 정도 물)에 올려 데우면서 거품기로 저어줍니다.', timer: 2*60+30 },
+          { title: '고속 휘핑', text: '중탕에서 내려 핸드믹서 고속으로 휘핑해 반죽이 하얗고 리본처럼 떨어질 때까지 충분히 부풀립니다.', timer: 6*60 },
+          { title: '가루 섞기', text: '<b>박력분</b>을 체 쳐서 2~3회에 나눠 넣고 주걱으로 가르듯이 섞습니다. 너무 오래 섞지 않습니다.', timer: null },
+          { title: '버터물 섞기', text: '반죽 한 주걱을 덜어 데워둔 <b>무염버터</b>, <b>우유</b>와 섞은 뒤 전체 반죽에 다시 합쳐 가볍게 섞습니다.', timer: null },
+          { title: '굽기', text: '반죽을 팬에 붓습니다. 반죽이 팬의 85~90%를 넘지 않도록 확인하고, 165도 오븐에서 굽습니다.', timer: 40*60 },
+          { title: '식히기', text: '구워지면 팬째 뒤집어 식힘망에서 완전히 식힌 후 팬에서 분리합니다.', timer: null },
+          { title: '시럽 만들기', text: '<b>시럽용 물</b>과 <b>시럽용 설탕</b>을 냄비에 넣고 한 번 끓여 식힙니다.', timer: null },
+          { title: '컬러 생크림 휘핑', text: '<b>생크림(휘핑용)</b>과 <b>설탕(크림용)</b>을 볼에 넣고 단단한 뿔이 서도록 휘핑한 뒤 절반씩 나눠, 한쪽엔 <b>핑크 식용색소</b>, 다른 한쪽엔 <b>퍼플(보라) 식용색소</b>를 이쑤시개로 아주 소량씩 넣어가며 원하는 톤이 나올 때까지 살살 섞습니다.', timer: 3*60+20 },
+          { title: '베리 다이스 준비', text: '<b>딸기(다이스용)</b>와 <b>블루베리(다이스용)</b>는 물기를 최대한 제거하고 작게 다이스로 썰어둡니다.', timer: null },
+          { title: '시트 3등분 후 시럽 바르기', text: '식은 시트를 수평으로 균등하게 3등분하고, 각 단면에 시럽을 골고루 발라줍니다.', timer: null },
+          { title: '컬러 층 쌓기', text: '맨 아래 시트 위에 핑크 크림을 얇게 바르고 과일 다이스를 깐 뒤 크림을 한 겹 더 덮고 두 번째 시트를 올립니다. 두 번째 단은 보라 크림으로 같은 방식을 반복해 세 번째 시트를 올립니다.', timer: null },
+          { title: '그라데이션 코팅', text: '남은 핑크·보라 크림을 조금씩 번갈아 발라 그라데이션 느낌으로 케이크 전체를 코팅합니다.', timer: null },
+          { title: '베리 데코', text: '<b>딸기·블루베리(토핑용)</b>를 물기 없이 케이크 윗면에 원하는 모양으로 올려 장식합니다.', timer: null },
+          { title: '냉장 보관', text: '먹기 전 냉장고에서 1시간 이상 굳혀줍니다.', timer: 3600 },
+        ],
+        note: '색소는 정말 소량으로 시작해서 조금씩 늘려가며 조절하는 게 안전합니다. 과즙(딸기즙·블루베리즙)으로 색을 내면 천연스럽지만 크림이 묽을 수 있으니, 안정성 우선이면 식용색소가 낫습니다.',
+      },
+      {
+        id: 'chocolate-cake',
+        label: '초코케이크',
+        image: 'images/chocolate-cake.jpg',
+        desc: '시트와 크림 모두 초콜릿 맛으로 채우고, 겉면은 초코가나슈로 코팅/드립한 진한 초코케이크입니다.',
+        ingredients: [
+          { name: '달걀', base: 6, unit: '개' },
+          { name: '설탕', base: 180, unit: 'g', tag: '시트용' },
+          { name: '박력분', base: 150, unit: 'g' },
+          { name: '코코아파우더', base: 30, unit: 'g', tag: '시트용' },
+          { name: '우유', base: 45, unit: 'ml' },
+          { name: '무염버터', base: 30, unit: 'g' },
+          { name: '생크림', base: 480, unit: 'ml', tag: '휘핑용' },
+          { name: '설탕', base: 48, unit: 'g', tag: '크림용' },
+          { name: '코코아파우더', base: 20, unit: 'g', tag: '크림용' },
+          { name: '시럽용 물', base: 60, unit: 'ml' },
+          { name: '시럽용 설탕', base: 30, unit: 'g' },
+          { name: '다크초콜릿', base: 150, unit: 'g', tag: '가나슈용' },
+          { name: '생크림', base: 150, unit: 'ml', tag: '가나슈용' },
+        ],
+        steps: [
+          { title: '오븐 예열 및 팬 준비', text: '오븐을 165도로 예열합니다. 지름 18cm 원형팬 바닥과 옆면에 유산지를 깝니다.', timer: null },
+          { title: '버터·우유 데우기', text: '<b>무염버터</b>와 <b>우유</b>를 작은 볼에 담아 살짝 데워 버터를 녹입니다.', timer: null },
+          { title: '달걀 거품내기', text: '<b>달걀</b>과 <b>설탕(시트용)</b>을 큰 볼에 넣고 중탕(60도 정도 물)에 올려 데우면서 거품기로 저어줍니다.', timer: 2*60+30 },
+          { title: '고속 휘핑', text: '중탕에서 내려 핸드믹서 고속으로 휘핑해 반죽이 하얗고 리본처럼 떨어질 때까지 충분히 부풀립니다.', timer: 6*60 },
+          { title: '가루 섞기', text: '<b>박력분</b>과 <b>코코아파우더(시트용)</b>를 함께 체 쳐서 2~3회에 나눠 넣고 주걱으로 가르듯이 섞습니다. 너무 오래 섞지 않습니다.', timer: null },
+          { title: '버터물 섞기', text: '반죽 한 주걱을 덜어 데워둔 <b>무염버터</b>, <b>우유</b>와 섞은 뒤 전체 반죽에 다시 합쳐 가볍게 섞습니다.', timer: null },
+          { title: '굽기', text: '반죽을 팬에 붓습니다. 반죽이 팬의 85~90%를 넘지 않도록 확인하고, 165도 오븐에서 굽습니다.', timer: 40*60 },
+          { title: '식히기', text: '구워지면 팬째 뒤집어 식힘망에서 완전히 식힌 후 팬에서 분리합니다.', timer: null },
+          { title: '시럽 만들기', text: '<b>시럽용 물</b>과 <b>시럽용 설탕</b>을 냄비에 넣고 한 번 끓여 식힙니다.', timer: null },
+          { title: '초콜릿 생크림 휘핑', text: '<b>생크림(휘핑용)</b>, <b>설탕(크림용)</b>, <b>코코아파우더(크림용)</b>를 볼에 넣고 차가운 상태에서 단단한 뿔이 서도록 휘핑합니다.', timer: 3*60+20 },
+          { title: '시트 3등분 후 시럽 바르기', text: '식은 시트를 수평으로 균등하게 3등분하고, 각 단면에 시럽을 골고루 발라줍니다.', timer: null },
+          { title: '3단 층 쌓기', text: '맨 아래 시트 위에 초콜릿 크림을 바르고 두 번째 시트를 올립니다. 같은 방식으로 반복해 세 번째 시트까지 쌓습니다.', timer: null },
+          { title: '가결 코팅 및 냉장', text: '남은 초콜릿 크림으로 케이크 전체를 약간 거칠게 미리 코팅해 둔 뒤 냉장고에 잠시 굳혀줍니다.', timer: 10*60 },
+          { title: '가나슈 만들기', text: '<b>다크초콜릿(가나슈용)</b>을 작게 다진 뒤, 뜨겁게 데운 <b>생크림(가나슈용)</b>을 붓고 그대로 둔 뒤 가운데부터 천천히 저어 매끄럽게 녹입니다.', timer: 90 },
+          { title: '드립 마무리', text: '새 가나슈를 상온으로 조금 식힌 뒤 케이크 중앙에 붓고 뒤로 자연스럽게 흘러내려 가장자리에 드립 효과를 냅니다. 모자라면 위에만 머무르듯이 붓고 가장자리는 비워둡니다.', timer: null },
+          { title: '냉장 보관', text: '먹기 전 냉장고에서 1시간 이상 굳혀줍니다.', timer: 3600 },
+        ],
+        note: '가나슈 초콜릿:생크림 비율은 1:1이라 흐르는 드립용으로 알맞습니다. 더 되직한 코팅을 원하면 초콜릿 비율을 조금 늘려도 됩니다.',
+      },
+      {
+        id: 'buttercream-cake',
+        label: '버터크림케이크',
+        image: 'images/buttercream-cake.jpg',
+        desc: '같은 시트에, 생크림 대신 버터+슈가파우더로 만든 기본 버터크림을 채우고 코팅한 버터크림케이크입니다.',
+        ingredients: [
+          { name: '달걀', base: 6, unit: '개' },
+          { name: '설탕', base: 180, unit: 'g', tag: '시트용' },
+          { name: '박력분', base: 180, unit: 'g' },
+          { name: '우유', base: 45, unit: 'ml' },
+          { name: '무염버터', base: 30, unit: 'g', tag: '시트용' },
+          { name: '시럽용 물', base: 60, unit: 'ml' },
+          { name: '시럽용 설탕', base: 30, unit: 'g' },
+          { name: '무염버터', base: 300, unit: 'g', tag: '버터크림용, 실온' },
+          { name: '슈가파우더', base: 150, unit: 'g' },
+          { name: '우유', base: 30, unit: 'ml', tag: '크림 농도 조절용' },
+        ],
+        steps: [
+          { title: '오븐 예열 및 팬 준비', text: '오븐을 165도로 예열합니다. 지름 18cm 원형팬 바닥과 옆면에 유산지를 깝니다.', timer: null },
+          { title: '버터·우유 데우기', text: '<b>무염버터(시트용)</b>와 <b>우유</b>를 작은 볼에 담아 살짝 데워 버터를 녹입니다.', timer: null },
+          { title: '달걀 거품내기', text: '<b>달걀</b>과 <b>설탕(시트용)</b>을 큰 볼에 넣고 중탕(60도 정도 물)에 올려 데우면서 거품기로 저어줍니다.', timer: 2*60+30 },
+          { title: '고속 휘핑', text: '중탕에서 내려 핸드믹서 고속으로 휘핑해 반죽이 하얗고 리본처럼 떨어질 때까지 충분히 부풀립니다.', timer: 6*60 },
+          { title: '가루 섞기', text: '<b>박력분</b>을 체 쳐서 2~3회에 나눠 넣고 주걱으로 가르듯이 섞습니다. 너무 오래 섞지 않습니다.', timer: null },
+          { title: '버터물 섞기', text: '반죽 한 주걱을 덜어 데워둔 <b>무염버터(시트용)</b>, <b>우유</b>와 섞은 뒤 전체 반죽에 다시 합쳐 가볍게 섞습니다.', timer: null },
+          { title: '굽기', text: '반죽을 팬에 붓습니다. 반죽이 팬의 85~90%를 넘지 않도록 확인하고, 165도 오븐에서 굽습니다.', timer: 40*60 },
+          { title: '식히기', text: '구워지면 팬째 뒤집어 식힘망에서 완전히 식힌 후 팬에서 분리합니다.', timer: null },
+          { title: '시럽 만들기', text: '<b>시럽용 물</b>과 <b>시럽용 설탕</b>을 냄비에 넣고 한 번 끓여 식힙니다.', timer: null },
+          { title: '버터 휘핑', text: '실온으로 부드러워진 <b>무염버터(버터크림용, 실온)</b>를 핸드믹서로 색이 연해지고 크림같이 될 때까지 3~4분간 충분히 휘핑합니다.', timer: 4*60 },
+          { title: '슈가파우더 섞기', text: '<b>슈가파우더</b>를 2~3회에 나눠 넣으면서 저속으로 휘핑해 섞습니다. 가루가 날리지 않도록 처음에는 저속으로 돌립니다.', timer: null },
+          { title: '버터크림 완성', text: '<b>우유(크림 농도 조절용)</b>를 넣고 고속으로 1~2분간 휘핑해 가볍고 부드러운 버터크림을 완성합니다.', timer: null },
+          { title: '시트 3등분 후 시럽 바르기', text: '식은 시트를 수평으로 균등하게 3등분하고, 각 단면에 시럽을 골고루 발라줍니다.', timer: null },
+          { title: '3단 층 쌓기', text: '맨 아래 시트 위에 버터크림을 바르고 두 번째 시트를 올립니다. 같은 방식으로 반복해 세 번째 시트까지 쌓습니다.', timer: null },
+          { title: '겉면 코팅', text: '남은 버터크림으로 케이크 전체를 깔끔하게 코팅합니다 (버터크림은 생크림보다 단단해 각도 내기가 쉽습니다).', timer: null },
+          { title: '냉장 보관', text: '먹기 전 냉장고에서 30분~1시간 정도 굳혀줍니다. 버터크림은 차갑게 두면 단단하게 굳으니 너무 오래 차가운 곳에 두지 않도록 주의합니다.', timer: 30*60 },
+        ],
+        note: '시럽을 이전보다 살짝 더 발라줘도 좋습니다. 버터크림은 생크림보다 무거운 편이라 시트가 촉촉해야 밸런스가 맞습니다.',
+      },
+      {
+        id: 'tiramisu-cake',
+        label: '티라미수케이크',
+        image: 'images/tiramisu-cake.jpg',
+        desc: '커피 시럽을 적신 시트 사이에 마스카포네+생크림 크림을 채우고, 겉면에 코코아파우더를 뿌린 티라미수케이크입니다.',
+        ingredients: [
+          { name: '달걀', base: 6, unit: '개' },
+          { name: '설탕', base: 180, unit: 'g', tag: '시트용' },
+          { name: '박력분', base: 180, unit: 'g' },
+          { name: '우유', base: 45, unit: 'ml' },
+          { name: '무염버터', base: 30, unit: 'g' },
+          { name: '에스프레소', base: 60, unit: 'ml', tag: '또는 진한 드립커피' },
+          { name: '시럽용 설탕', base: 30, unit: 'g' },
+          { name: '마스카포네 치즈', base: 250, unit: 'g' },
+          { name: '생크림', base: 250, unit: 'ml', tag: '휘핑용' },
+          { name: '설탕', base: 50, unit: 'g', tag: '크림용' },
+          { name: '코코아파우더', base: 15, unit: 'g', tag: '토핑용' },
+        ],
+        steps: [
+          { title: '오븐 예열 및 팬 준비', text: '오븐을 165도로 예열합니다. 지름 18cm 원형팬 바닥과 옆면에 유산지를 깝니다.', timer: null },
+          { title: '버터·우유 데우기', text: '<b>무염버터</b>와 <b>우유</b>를 작은 볼에 담아 살짝 데워 버터를 녹입니다.', timer: null },
+          { title: '달걀 거품내기', text: '<b>달걀</b>과 <b>설탕(시트용)</b>을 큰 볼에 넣고 중탕(60도 정도 물)에 올려 데우면서 거품기로 저어줍니다.', timer: 2*60+30 },
+          { title: '고속 휘핑', text: '중탕에서 내려 핸드믹서 고속으로 휘핑해 반죽이 하얗고 리본처럼 떨어질 때까지 충분히 부풀립니다.', timer: 6*60 },
+          { title: '가루 섞기', text: '<b>박력분</b>을 체 쳐서 2~3회에 나눠 넣고 주걱으로 가르듯이 섞습니다. 너무 오래 섞지 않습니다.', timer: null },
+          { title: '버터물 섞기', text: '반죽 한 주걱을 덜어 데워둔 <b>무염버터</b>, <b>우유</b>와 섞은 뒤 전체 반죽에 다시 합쳐 가볍게 섞습니다.', timer: null },
+          { title: '굽기', text: '반죽을 팬에 붓습니다. 반죽이 팬의 85~90%를 넘지 않도록 확인하고, 165도 오븐에서 굽습니다.', timer: 40*60 },
+          { title: '식히기', text: '구워지면 팬째 뒤집어 식힘망에서 완전히 식힌 후 팬에서 분리합니다.', timer: null },
+          { title: '커피시럽 만들기', text: '<b>에스프레소(또는 진한 드립커피)</b>와 <b>시럽용 설탕</b>을 섞어 설탕이 녹도록 저어주고 식힙니다.', timer: null },
+          { title: '마스카포네 크림 만들기', text: '차가운 <b>생크림(휘핑용)</b>과 <b>설탕(크림용)</b>을 볼에 넣고, 마스카포네와 합칠 때 분리되지 않도록 60~70% 정도로만 단단하게 휘핑합니다. 그다음 <b>마스카포네 치즈</b>를 넣고 주걱으로 가볍게 합쳐줍니다.', timer: 3*60 },
+          { title: '시트 3등분 후 커피시럽 적시기', text: '식은 시트를 수평으로 균등하게 3등분하고, 각 단면에 커피시럽을 충분히 적셔줍니다 (이탈리안식 티라미수처럼 촉촉하게 적셔도 좋아요).', timer: null },
+          { title: '3단 층 쌓기', text: '맨 아래 시트 위에 마스카포네 크림을 두껍게 바르고 두 번째 시트를 올립니다. 같은 방식으로 반복해 세 번째 시트까지 쌓습니다.', timer: null },
+          { title: '겉면 코팅', text: '남은 마스카포네 크림으로 케이크 전체를 깔끔하게 코팅합니다.', timer: null },
+          { title: '냉장 보관', text: '먹기 전 냉장고에서 최소 2시간 이상 (가능하면 반나절) 굳혀 마스카포네 크림이 안정되게 합니다.', timer: 2*3600 },
+          { title: '코코아파우더 뿌리기', text: '먹기 직전에 <b>코코아파우더(토핑용)</b>를 체에 받쳐 케이크 위에 골고루 뿌립니다. 너무 미리 뿌리면 습기를 머금어 눅눅해질 수 있으니 먹기 직전이 좋습니다.', timer: null },
+        ],
+        note: '마스카포네:생크림 비율은 1:1로 표준적인 무거움과 가벼움의 균형입니다. 커피는 알코올(마르살라, 럼 등) 없이 잡았고, 원하면 시럽에 소량 넣어도 됩니다.',
+      },
     ],
-    steps: [
-      { title: '오븐 예열 및 팬 준비', text: '오븐을 165도로 예열합니다 (시트가 두꺼운 만큼 온도를 조금 낮추고 시간을 늘립니다). 지름 18cm 원형팬 바닥과 옆면에 유산지를 깝니다.', timer: 15*60 },
-      { title: '버터·우유 데우기', text: '<b>무염버터</b>와 <b>우유</b>를 작은 볼에 담아 중탕이나 전자레인지로 살짝 데워 버터를 녹입니다.', timer: null },
-      { title: '달걀 거품내기', text: '<b>달걀</b>과 <b>설탕(시트용)</b>을 큰 볼에 넣고 중탕(60도 정도 물)에 올려 데우면서 거품기로 저어줍니다.', timer: 2*60 },
-      { title: '고속 휘핑', text: '중탕에서 내려 핸드믹서 고속으로 휘핑해 반죽이 하얗고 리본처럼 떨어질 때까지 충분히 부풀립니다. 시간은 참고용이며, 믹서 파워나 반죽 양에 따라 편차가 크니 <b>리본 모양이 잠시 유지되는지</b>로 최종 판단합니다.', timer: 6*60 },
-      { title: '가루 섞기', text: '<b>박력분</b>을 체 쳐서 2~3회에 나눠 넣고 주걱으로 가르듯이 섞습니다. 너무 오래 섞지 않습니다.', timer: null },
-      { title: '버터물 섞기', text: '반죽 한 주걱을 덜어 데워둔 <b>무염버터</b>, <b>우유</b>와 섞은 뒤 전체 반죽에 다시 합쳐 가볍게 섞습니다.', timer: null },
-      { title: '굽기', text: '반죽을 팬에 붓습니다. 반죽이 팬의 85~90%를 넘지 않도록 확인하고, 바닥에 살짝 쳐서 기포를 뺀 후 165도 오븐에서 굽습니다. 시트가 두꺼워졌으므로 꺼풀이 타기 전에 호일로 덮어주면 좋습니다. 오븐마다 편차가 크니 <b>30분 정도부터 꼬치로 찔러 확인</b>하며 굽습니다.', timer: 40*60 },
-      { title: '식히기', text: '구워지면 팬째 뒤집어 식힘망에서 완전히 식힌 후 팬에서 분리합니다.', timer: null },
-      { title: '시럽 만들기', text: '<b>시럽용 물</b>과 <b>시럽용 설탕</b>을 냄비에 넣고 한 번 끓여 식힙니다.', timer: null },
-      { title: '생크림 휘핑', text: '<b>생크림</b>과 <b>설탕(크림용)</b>을 볼에 넣고 차가운 상태에서 단단한 뿔이 서도록 휘핑합니다.', timer: 200 },
-      { title: '시트 3등분 후 시럽 바르기', text: '식은 시트를 수평으로 균등하게 3등분하고, 각 단면에 시럽을 골고루 발라줍니다.', timer: null },
-      { title: '3단 층 쌓기', text: '맨 아래 시트 위에 생크림을 바르고 두 번째 시트를 올립니다. 같은 방식으로 크림을 바르고 세 번째 시트를 올려 쌓습니다.', timer: null },
-      { title: '겉면 코팅 및 데코', text: '케이크 전체를 남은 생크림으로 깔끔하게 코팅하고(가장자리 코팅 후 마무리 코팅) 원하는 대로 장식합니다.', timer: null },
-      { title: '냉장 보관', text: '먹기 전 냉장고에서 1시간 이상 굳혀주면 층이 안정되고 더 깔끔하게 썰립니다.', timer: 3600 },
-    ],
-    note: '우유 일부를 연유로 바꾸면 은은한 단맛과 향이 더해집니다 (우유 45ml 중 15ml 정도를 연유로 바꾸는 걸 추천, 처음이면 5ml부터 소량으로 시작해도 좋습니다).',
   },
 ];
 
@@ -1395,18 +1590,62 @@ const timerStates = {};
 let selectedToppingCategoryIdx = 0;
 let selectedToppingOptionId = null;
 let leaveningMode = 'levain'; // 'levain' | 'yeast'
+let selectedCakeVariantId = null;
 
 function isYeastMode() {
   return leaveningMode === 'yeast' && !!(currentRecipe && currentRecipe.yeastVersion);
 }
+function getActiveCakeVariant() {
+  if (!currentRecipe || !currentRecipe.cakeVariants) return null;
+  return currentRecipe.cakeVariants.find(v => v.id === selectedCakeVariantId) || currentRecipe.cakeVariants[0];
+}
 function getActiveIngredients() {
+  const variant = getActiveCakeVariant();
+  if (variant) return variant.ingredients;
   return isYeastMode() ? currentRecipe.yeastVersion.ingredients : currentRecipe.ingredients;
 }
 function getActiveSteps() {
+  const variant = getActiveCakeVariant();
+  if (variant) return variant.steps;
   return isYeastMode() ? currentRecipe.yeastVersion.steps : currentRecipe.steps;
 }
 function getActiveNote() {
+  const variant = getActiveCakeVariant();
+  if (variant) return variant.note;
   return isYeastMode() ? currentRecipe.yeastVersion.note : currentRecipe.note;
+}
+function getActiveDesc() {
+  const variant = getActiveCakeVariant();
+  return variant ? variant.desc : currentRecipe.desc;
+}
+function getActiveImage() {
+  const variant = getActiveCakeVariant();
+  return variant ? variant.image : currentRecipe.image;
+}
+
+function renderCakeVariantSection() {
+  const container = document.getElementById('cake-variant-section');
+  container.innerHTML = '';
+  if (!currentRecipe.cakeVariants || currentRecipe.cakeVariants.length < 2) return;
+
+  const row = document.createElement('div');
+  row.className = 'cake-variant-row';
+  currentRecipe.cakeVariants.forEach(variant => {
+    const btn = document.createElement('button');
+    btn.className = 'cake-variant-btn' + (variant.id === selectedCakeVariantId ? ' active' : '');
+    btn.textContent = variant.label;
+    btn.addEventListener('click', () => {
+      selectedCakeVariantId = variant.id;
+      renderCakeVariantSection();
+      renderVisual();
+      renderIngredients();
+      renderSteps();
+      document.getElementById('detail-desc').textContent = getActiveDesc();
+      document.getElementById('detail-note').innerHTML = '<b>메모.</b> ' + getActiveNote();
+    });
+    row.appendChild(btn);
+  });
+  container.appendChild(row);
 }
 
 function renderLeaveningToggle() {
@@ -1611,9 +1850,11 @@ function openRecipe(id) {
   document.getElementById('topbar').style.display = 'block';
   window.scrollTo(0, 0);
 
+  selectedCakeVariantId = currentRecipe.cakeVariants ? currentRecipe.cakeVariants[0].id : null;
+
   document.getElementById('detail-eyebrow').textContent = currentRecipe.icon + '  ' + currentRecipe.name;
   document.getElementById('detail-title').textContent = currentRecipe.name;
-  document.getElementById('detail-desc').textContent = currentRecipe.desc;
+  document.getElementById('detail-desc').textContent = getActiveDesc();
   document.getElementById('detail-note').innerHTML = '<b>메모.</b> ' + getActiveNote();
   document.getElementById('servings-unit-label').textContent = computeUnitLabel(currentRecipe, servings);
   document.getElementById('servings-num').textContent = servings;
@@ -1628,6 +1869,7 @@ function openRecipe(id) {
 
   renderLeaveningToggle();
   renderVisual();
+  renderCakeVariantSection();
   renderIngredients();
   renderToppingSection();
   renderSteps();
@@ -1984,8 +2226,9 @@ function toggleTimer(idx, btn) {
 
 function renderVisual() {
   const el = document.getElementById('detail-visual');
-  if (currentRecipe.image) {
-    el.innerHTML = `<img src="${currentRecipe.image}" alt="${currentRecipe.name}">`;
+  const img = getActiveImage();
+  if (img) {
+    el.innerHTML = `<img src="${img}" alt="${currentRecipe.name}">`;
   } else {
     el.innerHTML = '';
   }
